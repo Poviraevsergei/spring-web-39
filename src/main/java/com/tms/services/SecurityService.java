@@ -3,6 +3,7 @@ package com.tms.services;
 import com.tms.model.Role;
 import com.tms.model.Security;
 import com.tms.model.User;
+import com.tms.model.dto.RegistrationRequestDto;
 import com.tms.model.dto.UserDto;
 import com.tms.repositories.SecurityRepository;
 import com.tms.repositories.UserRepository;
@@ -26,20 +27,20 @@ public class SecurityService {
         this.transactionTemplate = transactionTemplate;
     }
 
-    public UserDto registration(String firstName, String lastName, int age, String username, String password, String email) {
+    public UserDto registration(RegistrationRequestDto registrationDto) {
         return transactionTemplate.execute(action -> {
             User user = new User();
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setAge(age);
-            user.setEmail(email);
+            user.setFirstName(registrationDto.getFirstName());
+            user.setLastName(registrationDto.getLastName());
+            user.setAge(registrationDto.getAge());
+            user.setEmail(registrationDto.getEmail());
             user.setCreated(LocalDateTime.now());
             user.setUpdated(LocalDateTime.now());
             User savedUser = userRepository.saveUser(user);
 
             Security security = new Security();
-            security.setUsername(username);
-            security.setPassword(password);
+            security.setUsername(registrationDto.getUsername());
+            security.setPassword(registrationDto.getPassword());
             security.setRole(Role.USER);
             security.setUserId(savedUser.getId());
             securityRepository.saveSecurity(security);

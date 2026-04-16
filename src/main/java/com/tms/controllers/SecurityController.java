@@ -1,14 +1,21 @@
 package com.tms.controllers;
 
+import com.tms.model.dto.RegistrationRequestDto;
 import com.tms.model.dto.UserDto;
 import com.tms.services.SecurityService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/security")
@@ -23,15 +30,18 @@ public class SecurityController {
 
     @PostMapping("/registration")
     public ModelAndView registration(
-            @RequestParam(value = "firstName") String firstName,
-            @RequestParam(value = "lastName") String lastName,
-            @RequestParam(value = "age") int age,
-            @RequestParam(value = "username") String username,
-            @RequestParam(value = "email") String email,
-            @RequestParam(value = "password") String password,
+            @ModelAttribute @Valid RegistrationRequestDto registrationDto,
+            BindingResult bindingResult,
             ModelAndView model) {
         try {
-            UserDto createdUser = securityService.registration(firstName, lastName, age, username, password, email);
+            if (bindingResult.hasErrors()) {
+                System.out.println(bindingResult.getAllErrors());
+                model.addObject("exception", bindingResult.getAllErrors());
+                model.setViewName("error-registration");
+                model.setStatus(HttpStatus.BAD_REQUEST);
+                return model;
+            }
+            UserDto createdUser = securityService.registration(registrationDto);
             model.addObject("user", createdUser);
             model.setViewName("success-registration");
             model.setStatus(HttpStatus.CREATED); //201 CREATED
