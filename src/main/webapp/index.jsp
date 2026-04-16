@@ -9,11 +9,14 @@
     <label for="firstName">Имя:</label><br>
     <input type="text" id="firstName" name="firstName" required><br><br>
 
-    <label for="secondName">Фамилия:</label><br>
-    <input type="text" id="secondName" name="secondName" required><br><br>
+    <label for="lastName">Фамилия:</label><br>
+    <input type="text" id="lastName" name="lastName" required><br><br>
 
     <label for="age">Возраст:</label><br>
     <input type="number" id="age" name="age" required><br><br>
+
+    <label for="email">Email:</label><br>
+    <input type="text" id="email" name="email" required><br><br>
 
     <label for="username">Имя пользователя:</label><br>
     <input type="text" id="username" name="username" required><br><br>

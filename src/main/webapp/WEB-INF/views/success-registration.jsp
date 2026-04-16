@@ -4,6 +4,7 @@
     <title>Hello</title>
 </head>
 <body>
-This is hello page!
+Registration completed!
+User ${user.firstName} ${user.lastName} with id ${user.id} created!
 </body>
 </html>
