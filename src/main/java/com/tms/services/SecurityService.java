@@ -1,5 +1,6 @@
 package com.tms.services;
 
+import com.tms.exceptions.AgeException;
 import com.tms.model.Role;
 import com.tms.model.Security;
 import com.tms.model.User;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class SecurityService {
@@ -32,6 +32,10 @@ public class SecurityService {
             User user = new User();
             user.setFirstName(registrationDto.getFirstName());
             user.setLastName(registrationDto.getLastName());
+
+            if (registrationDto.getAge() < 18) {
+                throw new AgeException();
+            }
             user.setAge(registrationDto.getAge());
             user.setEmail(registrationDto.getEmail());
             user.setCreated(LocalDateTime.now());
