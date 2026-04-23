@@ -3,6 +3,7 @@ package com.tms.repositories;
 import com.tms.model.User;
 import com.tms.util.SqlQueries;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Repository
 public class UserRepository {
@@ -35,5 +37,9 @@ public class UserRepository {
 
         userInput.setId((int)keyHolder.getKeys().get("id"));
         return userInput;
+    }
+
+    public List<User> findAll() {
+        return jdbcTemplate.query(SqlQueries.SQL_SELECT_ALL_USERS, new BeanPropertyRowMapper<>(User.class));
     }
 }
