@@ -1,0 +1,37 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>All users</title>
+</head>
+<body>
+<h1>All users:</h1>
+<ul th:each="user : ${users}" th:object="${user}">
+    <p><strong th:text="${user.id}">Id: *{id}</strong></p>
+    <p><strong th:inline="text">First name: [[*{firstName}]]</strong></p>
+    <p><strong th:inline="text">Last name: [[*{lastName}]]</strong></p>
+    <p><strong th:inline="text">Age: [[*{age}]]</strong></p>
+    <p><strong th:inline="text">Email: [[*{email}]]</strong></p>
+    <p><strong th:inline="text">Created: [[*{created}]]</strong></p>
+    <p><strong th:inline="text">Updated: [[*{updated}]]</strong></p>
+    <p>----------------------------------------</p>
+    <form th:action="@{/user/delete/{id}(id=${user.id})}" method="post">
+        <input type="submit" value="Remove user">
+    </form>
+    <p>----------------------------------------</p>
+</ul>
+
+if-else
+<div th:if="${ifValueFromController}">
+    <h1>If 'ifValueFromController' TRUE</h1>
+</div>
+<div th:unless="${ifValueFromController}">
+    <h1>If 'ifValueFromController' FALSE</h1>
+</div>
+
+switch
+<div th:switch="${role.name()}">
+    <div th:case="ADMIN">This is ADMIN</div>
+    <div th:case="MODERATOR">This is MODERATOR</div>
+    <div th:case="*">This is USER</div>
+</div>
+</body>
+</html>

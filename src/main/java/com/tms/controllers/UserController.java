@@ -1,5 +1,6 @@
 package com.tms.controllers;
 
+import com.tms.model.Role;
 import com.tms.model.User;
 import com.tms.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class UserController {
         model.addObject("users", users);
         model.setViewName("users-page");
         model.setStatus(HttpStatus.OK);
+        //TODO: remove me
+        model.addObject("ifValueFromController", false);
+        model.addObject("role", Role.USER);
         return model;
     }
 }
