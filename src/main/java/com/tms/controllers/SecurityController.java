@@ -1,21 +1,19 @@
 package com.tms.controllers;
 
-import com.tms.model.dto.RegistrationRequestDto;
-import com.tms.model.dto.UserDto;
+import com.tms.model.dto.RegistrationRequestDTO;
+import com.tms.model.dto.UserDTO;
 import com.tms.services.SecurityService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RestController;
 
-
-@Controller
+@RestController
 @RequestMapping("/security")
 public class SecurityController {
 
@@ -26,27 +24,14 @@ public class SecurityController {
         this.securityService = securityService;
     }
 
-    @GetMapping("/registration")
-    public String getRegistrationFormPage() {
-        return "registration-page";
-    }
-
     @PostMapping("/registration")
-    public ModelAndView registration(
-            @ModelAttribute @Valid RegistrationRequestDto registrationDto,
-            BindingResult bindingResult,
-            ModelAndView model) {
+    public ResponseEntity<UserDTO> registration(
+            @RequestBody @Valid RegistrationRequestDTO registrationDto,
+            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            System.out.println(bindingResult.getAllErrors());
-            model.addObject("exception", bindingResult.getAllErrors());
-            model.setViewName("error-registration");
-            model.setStatus(HttpStatus.BAD_REQUEST);
-            return model;
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        UserDto createdUser = securityService.registration(registrationDto);
-        model.addObject("user", createdUser);
-        model.setViewName("success-registration");
-        model.setStatus(HttpStatus.CREATED); //201 CREATED
-        return model;
+        UserDTO createdUser = securityService.registration(registrationDto);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 }

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class RegistrationRequestDto {
+public class RegistrationRequestDTO {
     @NotBlank
     @Size(min = 2, max = 50)
     private String firstName;
@@ -20,7 +20,7 @@ public class RegistrationRequestDto {
     @SixSeven
     private int age;
 
-    @Size(min = 5, max = 50)
+    @Size(min = 3, max = 50)
     private String username;
 
     @Email

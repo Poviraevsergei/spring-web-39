@@ -1,6 +1,8 @@
 package com.tms.repositories;
 
 import com.tms.model.User;
+import com.tms.model.dto.UserDTO;
+import com.tms.model.dto.UserUpdateRequestDTO;
 import com.tms.util.SqlQueries;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -35,11 +37,46 @@ public class UserRepository {
             return ps;
         }, keyHolder);
 
-        userInput.setId((int)keyHolder.getKeys().get("id"));
+        userInput.setId((int) keyHolder.getKeys().get("id"));
         return userInput;
     }
 
-    public List<User> findAll() {
-        return jdbcTemplate.query(SqlQueries.SQL_SELECT_ALL_USERS, new BeanPropertyRowMapper<>(User.class));
+    public List<UserDTO> findAll() {
+        return jdbcTemplate.query(SqlQueries.SQL_SELECT_ALL_USERS, new BeanPropertyRowMapper<>(UserDTO.class));
+    }
+
+    public UserDTO getUserById(Integer id) {
+        return jdbcTemplate.queryForObject(SqlQueries.SQL_SELECT_USER_BY_ID, new BeanPropertyRowMapper<>(UserDTO.class), id);
+    }
+
+    public boolean updateUser(UserUpdateRequestDTO userInput) {
+        return jdbcTemplate.update(SqlQueries.SQL_UPDATE_USER_BY_ID,
+                userInput.getFirstName(),
+                userInput.getLastName(),
+                userInput.getAge(),
+                userInput.getEmail(),
+                userInput.getId()) > 0;
+    }
+
+    public boolean deleteUserById(Integer id) {
+        return jdbcTemplate.update(SqlQueries.SQL_DELETE_USER_BY_ID, id) > 0;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

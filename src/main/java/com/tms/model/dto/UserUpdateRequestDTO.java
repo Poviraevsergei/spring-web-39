@@ -3,9 +3,10 @@ package com.tms.model.dto;
 import lombok.Data;
 
 @Data
-public class UserDto {
-    private int id;
+public class UserUpdateRequestDTO {
+    private Integer id;
     private String firstName;
     private String lastName;
     private int age;
+    private String email;
 }

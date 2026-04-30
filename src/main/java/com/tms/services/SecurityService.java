@@ -4,8 +4,8 @@ import com.tms.exceptions.AgeException;
 import com.tms.model.Role;
 import com.tms.model.Security;
 import com.tms.model.User;
-import com.tms.model.dto.RegistrationRequestDto;
-import com.tms.model.dto.UserDto;
+import com.tms.model.dto.RegistrationRequestDTO;
+import com.tms.model.dto.UserDTO;
 import com.tms.repositories.SecurityRepository;
 import com.tms.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class SecurityService {
         this.transactionTemplate = transactionTemplate;
     }
 
-    public UserDto registration(RegistrationRequestDto registrationDto) {
+    public UserDTO registration(RegistrationRequestDTO registrationDto) {
         return transactionTemplate.execute(action -> {
             User user = new User();
             user.setFirstName(registrationDto.getFirstName());
@@ -49,7 +49,7 @@ public class SecurityService {
             security.setUserId(savedUser.getId());
             securityRepository.saveSecurity(security);
 
-            UserDto userDto = new UserDto();
+            UserDTO userDto = new UserDTO();
             userDto.setId(savedUser.getId());
             userDto.setFirstName(savedUser.getFirstName());
             userDto.setLastName(savedUser.getLastName());
