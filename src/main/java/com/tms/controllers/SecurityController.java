@@ -3,6 +3,7 @@ package com.tms.controllers;
 import com.tms.model.dto.RegistrationRequestDTO;
 import com.tms.model.dto.UserDTO;
 import com.tms.services.SecurityService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ public class SecurityController {
         this.securityService = securityService;
     }
 
+    @Operation(summary = "Регистрация новых пользователей", description = "В этом эндпоинте пользователь может создать свой аккаунт в нашей системе. Для этого необходим .....")
     @PostMapping("/registration")
     public ResponseEntity<UserDTO> registration(
             @RequestBody @Valid RegistrationRequestDTO registrationDto,

@@ -2,6 +2,8 @@ package com.tms.controllers;
 
 import com.tms.exceptions.FileException;
 import com.tms.services.FileService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -46,12 +48,14 @@ public class FileController {
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
+    @Hidden
     @GetMapping
     public ResponseEntity<List<String>> getListOfFilenames() throws IOException {
         List<String> filenames = fileService.getListOfFilenames();
         return new ResponseEntity<>(filenames, HttpStatus.OK);
     }
 
+    @Tag(name = "Remove endpoints", description = "Эндпоинты ответственные за удаление")
     @DeleteMapping("/{filename}")
     public ResponseEntity<HttpStatus> deleteFile(@PathVariable("filename") String filename) throws FileNotFoundException {
         if (fileService.deleteFileByFilename(filename)){

@@ -6,6 +6,7 @@ import com.tms.model.dto.UserCreateRequestDTO;
 import com.tms.model.dto.UserDTO;
 import com.tms.model.dto.UserUpdateRequestDTO;
 import com.tms.repositories.UserRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,7 @@ public class UserService {
         }
         throw new UserUpdateException("User update failed for userId=" + userDto.getId());
     }
+
 
     public boolean deleteUserById(Integer id) {
         return userRepository.deleteUserById(id);

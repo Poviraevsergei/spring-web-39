@@ -6,6 +6,11 @@ import com.tms.model.dto.UserCreateRequestDTO;
 import com.tms.model.dto.UserDTO;
 import com.tms.model.dto.UserUpdateRequestDTO;
 import com.tms.services.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +41,14 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(description = "Пользователь с таким id не найден", responseCode = "404"),
+            @ApiResponse(description = "Пользователь успешно найден", responseCode = "200"),
+            @ApiResponse(description = "Ошибка сервера", responseCode = "500"),
+            @ApiResponse(description = "Общая ошибка запроса", responseCode = "400")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable @Parameter(description = "Уникальный идентификатор пользователя", example = "67") Integer id) {
         UserDTO userDto = userService.getUserById(id);
         if (userDto == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -57,6 +68,7 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @Tag(name = "Remove endpoints")
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteUserById(@PathVariable Integer id) {
         boolean result = userService.deleteUserById(id);
