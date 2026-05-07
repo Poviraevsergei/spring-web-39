@@ -1,6 +1,7 @@
 package com.tms.services;
 
 import com.tms.exceptions.FileException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+@Slf4j
 @Service
 public class FileService {
 
@@ -24,7 +26,7 @@ public class FileService {
         try {
             Files.copy(file.getInputStream(), ROOT_FILE_PATH.resolve(file.getOriginalFilename()));
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -41,7 +43,7 @@ public class FileService {
             }
             throw new FileException();
         } catch (MalformedURLException e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }

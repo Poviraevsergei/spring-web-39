@@ -6,13 +6,14 @@ import com.tms.model.dto.UserCreateRequestDTO;
 import com.tms.model.dto.UserDTO;
 import com.tms.model.dto.UserUpdateRequestDTO;
 import com.tms.repositories.UserRepository;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -27,10 +28,15 @@ public class UserService {
     }
 
     public UserDTO getUserById(Integer id) {
-        return userRepository.getUserById(id);
+        log.debug("IN UserService:getUserById");
+        UserDTO result = userRepository.getUserById(id);
+        log.info("Result getUserById: {}", result);
+        log.debug("OUT UserService:getUserById");
+        return result;
     }
 
     public UserDTO createUser(UserCreateRequestDTO userDto) {
+        log.debug("IN UserService:createUser");
         User user = new User();
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
@@ -39,19 +45,29 @@ public class UserService {
         user.setCreated(LocalDateTime.now());
         user.setUpdated(LocalDateTime.now());
         User savedUser = userRepository.saveUser(user);
-        return getUserById(savedUser.getId());
+        UserDTO result = getUserById(savedUser.getId());
+        log.debug("OUT UserService:createUser");
+        return result;
     }
 
     public UserDTO updateUser(UserUpdateRequestDTO userDto) throws UserUpdateException {
+        log.debug("IN UserService:updateUser");
         boolean result = userRepository.updateUser(userDto);
         if (result) {
-            return getUserById(userDto.getId());
+            log.info("User with id: {} updated", userDto.getId());
+            UserDTO user = getUserById(userDto.getId());
+            log.debug("OUT UserService:updateUser");
+            return user;
         }
         throw new UserUpdateException("User update failed for userId=" + userDto.getId());
     }
 
 
     public boolean deleteUserById(Integer id) {
-        return userRepository.deleteUserById(id);
+        log.debug("IN UserService:deleteUserById");
+        boolean result = userRepository.deleteUserById(id);
+        log.info("Delete user with id: {}, and result: {}", id, result);
+        log.debug("OUT UserService:deleteUserById");
+        return result;
     }
 }

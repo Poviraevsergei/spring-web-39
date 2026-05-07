@@ -1,5 +1,6 @@
 package com.tms.aspects;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Aspect
 @Component
 public class MyAspect {
@@ -23,30 +25,30 @@ public class MyAspect {
 
     @Before("myRegexPointcut()") //Advice + Pointcut
     public void printBefore(JoinPoint jp) {
-        System.out.println("JoinPoint Before :" + jp.getSignature());
-        System.out.println("AspectBefore method");
+        log.info("JoinPoint Before :" + jp.getSignature());
+        log.info("AspectBefore method");
     }
 
     @After("myRegexPointcut()") //Advice + Pointcut
     public void printAfter() {
-        System.out.println("AspectAfter method");
+        log.info("AspectAfter method");
     }
 
     @AfterThrowing(value = "myRegexPointcut()", throwing = "err") //Advice + Pointcut
     public void printAfterThrowing(ArithmeticException err) {
-        System.out.println("Aspect ArithmeticException method: " + err.toString());
+        log.info("Aspect ArithmeticException method: " + err.toString());
     }
 
     @AfterReturning(value = "myRegexPointcut()", returning = "result") //Advice + Pointcut
     public void printAfterReturning(Object result) {
-        System.out.println("Aspect AfterReturning method: " + result);
+        log.info("Aspect AfterReturning method: " + result);
     }
 
     @Around("within(com.tms.*)")
     public Object printAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        System.out.println(LocalDateTime.now() + " IN: " + joinPoint.getSignature().getName());
+        log.info(LocalDateTime.now() + " IN: " + joinPoint.getSignature().getName());
         Object result = joinPoint.proceed();
-        System.out.println(LocalDateTime.now() + " OUT: " + joinPoint.getSignature().getName());
+        log.info(LocalDateTime.now() + " OUT: " + joinPoint.getSignature().getName());
         return result;
     }
 }
