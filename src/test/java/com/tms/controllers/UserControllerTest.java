@@ -1,53 +1,34 @@
 package com.tms.controllers;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Tag;
+import com.tms.exceptions.UserUpdateException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("Класс тестирования юзер контроллера")
+import java.time.Duration;
+
 public class UserControllerTest {
 
-    @BeforeAll
-    public static void beforeAll() {
-        System.out.println("Before All");
-    }
-
-    @BeforeEach
-    public void beforeEach() {
-        System.out.println("Before Each");
-    }
-
-    @AfterEach
-    public void afterEach() {
-        System.out.println("After Each");
-    }
-
-    @AfterAll
-    public static void afterAll() {
-        System.out.println("After All");
-    }
-
-    @Disabled
-    @RepeatedTest(5)
-    @DisplayName("Мой первый тест")
+    @Test
     public void myFirstTest() {
-        System.out.println("myFirstTest");
-    }
-
-    @Test
-    public void mySecondTest() {
-        System.out.println("mySecondTest");
-    }
-
-    @Tag("tag-annotation")
-    @Test
-    public void myThirdTest() {
-        System.out.println("myThirdTest");
+        //1. донастройка
+        //2. запуск метода
+        //3.сравнение
+        Assertions.assertEquals(1, 1);
+        Assertions.assertNotEquals(1, 2);
+        Assertions.assertTrue(true);
+        Assertions.assertFalse(false);
+        Assertions.assertNull(null);
+        Assertions.assertNotNull(1);
+        Assertions.assertArrayEquals(new int[]{1, 2, 3}, new int[]{1, 2, 3});
+        Assertions.assertThrows(UserUpdateException.class, () -> {
+            throw new UserUpdateException("can not update :(");
+        });
+        Assertions.assertTimeout(Duration.ofMillis(2000), () -> {
+            Thread.sleep(1000);
+        });
+        //Assertions.fail("Не удалось подключиться к БД");
+        Assertions.assertDoesNotThrow(() -> {
+            System.out.println(10);
+        });
     }
 }
