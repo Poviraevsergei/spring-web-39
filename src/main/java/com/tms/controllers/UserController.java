@@ -1,16 +1,15 @@
 package com.tms.controllers;
 
 import com.tms.exceptions.UserUpdateException;
-import com.tms.model.User;
 import com.tms.model.dto.UserCreateRequestDTO;
 import com.tms.model.dto.UserDTO;
 import com.tms.model.dto.UserUpdateRequestDTO;
 import com.tms.services.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +36,8 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDTO> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
     @ApiResponses(value = {
@@ -57,13 +56,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserCreateRequestDTO userRequest) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserCreateRequestDTO userRequest) {
         UserDTO createdUserDTO = userService.createUser(userRequest);
         return new ResponseEntity<>(createdUserDTO, HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<UserDTO> updateUser(@RequestBody UserUpdateRequestDTO userRequest) throws UserUpdateException {
+    public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateRequestDTO userRequest) throws UserUpdateException {
         UserDTO user = userService.updateUser(userRequest);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }

@@ -27,12 +27,7 @@ public class SecurityController {
 
     @Operation(summary = "Регистрация новых пользователей", description = "В этом эндпоинте пользователь может создать свой аккаунт в нашей системе. Для этого необходим .....")
     @PostMapping("/registration")
-    public ResponseEntity<UserDTO> registration(
-            @RequestBody @Valid RegistrationRequestDTO registrationDto,
-            BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<UserDTO> registration(@RequestBody @Valid RegistrationRequestDTO registrationDto) {
         UserDTO createdUser = securityService.registration(registrationDto);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }

@@ -59,6 +59,7 @@ public class SecurityService {
             userDto.setFirstName(savedUser.getFirstName());
             userDto.setLastName(savedUser.getLastName());
             userDto.setAge(savedUser.getAge());
+            userDto.setEmail(savedUser.getEmail());
             log.info("User registered successfully: {}", userDto);
             return userDto;
         });
