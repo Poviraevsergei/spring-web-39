@@ -6,6 +6,9 @@ import com.tms.model.dto.UserCreateRequestDTO;
 import com.tms.model.dto.UserDTO;
 import com.tms.model.dto.UserUpdateRequestDTO;
 import com.tms.repositories.UserRepository;
+import com.tms.util.UserMapper;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,13 +18,10 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll();
@@ -29,10 +29,10 @@ public class UserService {
 
     public UserDTO getUserById(Integer id) {
         log.debug("IN UserService:getUserById");
-        UserDTO result = userRepository.getUserById(id);
-        log.info("Result getUserById: {}", result);
+        User userFromDatabase = userRepository.getUserById(id);
+        log.info("Result getUserById: {}", userFromDatabase);
         log.debug("OUT UserService:getUserById");
-        return result;
+        return userMapper.mapFromUserToUserDTO(userFromDatabase);
     }
 
     public UserDTO createUser(UserCreateRequestDTO userDto) {
@@ -45,7 +45,7 @@ public class UserService {
         user.setCreated(LocalDateTime.now());
         user.setUpdated(LocalDateTime.now());
         User savedUser = userRepository.saveUser(user);
-        UserDTO result = getUserById(savedUser.getId());
+        UserDTO result = userMapper.mapFromUserToUserDTO(savedUser);
         log.debug("OUT UserService:createUser");
         return result;
     }

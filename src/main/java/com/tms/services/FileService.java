@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -35,10 +36,10 @@ public class FileService {
         Path filePath = ROOT_FILE_PATH.resolve(filename);
         try {
             Resource resource = new UrlResource(filePath.toUri());
-            if (!resource.exists()){
+            if (!resource.exists()) {
                 throw new FileNotFoundException(filename);
             }
-            if (resource.isReadable()){
+            if (resource.isReadable()) {
                 return resource;
             }
             throw new FileException();
@@ -52,7 +53,7 @@ public class FileService {
         return Files.walk(ROOT_FILE_PATH)
                 .filter(path -> !path.equals(ROOT_FILE_PATH))
                 .map(Path::toString)
-                .map(path -> path.replaceAll("data\\\\",""))
+                .map(path -> path.replaceAll("data\\\\", ""))
                 .toList();
     }
 
@@ -60,7 +61,7 @@ public class FileService {
         Path filePath = ROOT_FILE_PATH.resolve(filename);
 
         File file = new File(filePath.toUri());
-        if (file.exists()){
+        if (file.exists()) {
             return file.delete();
         }
         throw new FileNotFoundException();
