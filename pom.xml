@@ -69,14 +69,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
 
-        <!-- Jpa(спецификация) -->
-        <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <version>3.2.0</version>
-            <scope>compile</scope>
-        </dependency>
-
         <!-- Jpa(реализация) -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>

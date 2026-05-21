@@ -6,10 +6,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
+
+/**
+ * HQL = Hibernate Query Language
+ */
 
 @Slf4j
 @Repository
@@ -18,14 +25,17 @@ public class UserRepository {
 
     private final SessionFactory sessionFactory;
 
+    /**
+     * HQL не предназначен на добавление новых строк, за исключением вставки между таблицами
+     * ИСПОЛЬЗОВАТЬ МЕТОД persist
+     */
     public User saveUser(User userInput) {
         User user = null;
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            session.persist(userInput);
-            user = session.find(User.class, userInput.getId());
+            session.createQuery("insert into User(firstName, lastName) select firstName2, lastName2 from UserBkp", User.class);
             transaction.commit();
         } catch (Exception e) {
             log.error("Error saving user", e);
@@ -50,7 +60,9 @@ public class UserRepository {
     public User getUserById(Integer id) {
         User user = null;
         try (Session session = sessionFactory.openSession()) {
-            user = session.find(User.class, id);
+            Query<User> userQuery = session.createQuery("FROM User WHERE id = :id", User.class);
+            userQuery.setParameter("id", id);
+            user = userQuery.getSingleResult();
         } catch (Exception e) {
             log.error("Error while getting user", e);
         }
@@ -62,9 +74,19 @@ public class UserRepository {
         User userUpdated = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
+            MutationQuery mutationQuery = session.createMutationQuery("update User set firstName = :firstName, lastName = :lastName, age=:age, email=:email, updated=:updated where id = :id");
+            mutationQuery.setParameter("firstName", userInput.getFirstName());
+            mutationQuery.setParameter("lastName", userInput.getLastName());
+            mutationQuery.setParameter("age", userInput.getAge());
+            mutationQuery.setParameter("email", userInput.getEmail());
+            mutationQuery.setParameter("updated", LocalDateTime.now());
+            mutationQuery.setParameter("id", userInput.getId());
             transaction.begin();
-            userUpdated = session.merge(userInput);
+            mutationQuery.executeUpdate();
             transaction.commit();
+            Query<User> userQuery = session.createQuery("FROM User WHERE id = :id", User.class);
+            userQuery.setParameter("id", userInput.getId());
+            userUpdated = userQuery.getSingleResult();
         } catch (Exception e) {
             log.error("Error while updating user", e);
             if (transaction != null && transaction.isActive()) {
@@ -79,7 +101,9 @@ public class UserRepository {
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            session.remove(session.find(User.class, id));
+            MutationQuery userQuery = session.createMutationQuery("DELETE FROM User WHERE id = :id");
+            userQuery.setParameter("id", id);
+            userQuery.executeUpdate();
             transaction.commit();
         } catch (Exception e) {
             log.error("Error while deleting user", e);
