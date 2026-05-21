@@ -2,6 +2,7 @@ package com.tms.model.dto;
 
 import com.tms.model.annotations.SixSeven;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -17,7 +18,7 @@ public class RegistrationRequestDTO {
     @Size(min = 2, max = 50)
     private String lastName;
 
-    @SixSeven
+    @Min(value = 18)
     private int age;
 
     @Size(min = 3, max = 50)

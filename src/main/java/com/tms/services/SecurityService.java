@@ -1,67 +1,57 @@
 package com.tms.services;
 
-import com.tms.exceptions.AgeException;
-import com.tms.model.Role;
+import com.tms.exceptions.RegistrationException;
 import com.tms.model.Security;
 import com.tms.model.User;
 import com.tms.model.dto.RegistrationRequestDTO;
-import com.tms.model.dto.UserDTO;
 import com.tms.repositories.SecurityRepository;
 import com.tms.repositories.UserRepository;
+import com.tms.util.SecurityMapper;
+import com.tms.util.UserMapper;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
-import java.time.LocalDateTime;
-
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class SecurityService {
     private final SecurityRepository securityRepository;
     private final UserRepository userRepository;
-    private final TransactionTemplate transactionTemplate;
+    private final SessionFactory sessionFactory;
 
-    @Autowired
-    public SecurityService(UserRepository userRepository, SecurityRepository securityRepository, TransactionTemplate transactionTemplate) {
-        this.userRepository = userRepository;
-        this.securityRepository = securityRepository;
-        this.transactionTemplate = transactionTemplate;
+    private final UserMapper userMapper;
+    private final SecurityMapper securityMapper;
+
+    public Security getSecurityById(Integer id) {
+        log.debug("IN SecurityService:getSecurityById");
+        Security securityFromDatabase = securityRepository.getSecurityById(id);
+        log.info("Result securityFromDatabase: {}", securityFromDatabase);
+        log.debug("OUT SecurityService:getUserById");
+        return securityFromDatabase;
     }
 
-    public UserDTO registration(RegistrationRequestDTO registrationDto) {
+    public User registration(RegistrationRequestDTO registrationDto) throws RegistrationException {
         log.debug("IN SecurityService:registration");
-        return transactionTemplate.execute(action -> {
-            User user = new User();
-            user.setFirstName(registrationDto.getFirstName());
-            user.setLastName(registrationDto.getLastName());
-
-            if (registrationDto.getAge() < 18) {
-                throw new AgeException();
-            }
-            user.setAge(registrationDto.getAge());
-            user.setEmail(registrationDto.getEmail());
-            user.setCreated(LocalDateTime.now());
-            user.setUpdated(LocalDateTime.now());
-            User savedUser = userRepository.saveUser(user);
-            log.info("User saved: {}", savedUser);
-
-            Security security = new Security();
-            security.setUsername(registrationDto.getUsername());
-            security.setPassword(registrationDto.getPassword());
-            security.setRole(Role.USER);
-            security.setUserId(savedUser.getId());
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            User user = userMapper.mapFromRegistrationRequestDTOToUser(registrationDto);
+            user = userRepository.saveUser(user);
+            log.info("User saved: {}", user);
+            Security security = securityMapper.mapFromRegistrationRequestDTOToSecurity(registrationDto, user);
             securityRepository.saveSecurity(security);
-            log.info("User security added for user with id: {}", savedUser.getId());
-
-            UserDTO userDto = new UserDTO();
-            userDto.setId(savedUser.getId());
-            userDto.setFirstName(savedUser.getFirstName());
-            userDto.setLastName(savedUser.getLastName());
-            userDto.setAge(savedUser.getAge());
-            userDto.setEmail(savedUser.getEmail());
-            log.info("User registered successfully: {}", userDto);
-            return userDto;
-        });
+            transaction.commit();
+            log.info("User security added for user with id: {}", user.getId());
+            return user;
+        } catch (Exception e) {
+            log.error("Exception in registration", e);
+        }
+        throw new RegistrationException();
     }
 }

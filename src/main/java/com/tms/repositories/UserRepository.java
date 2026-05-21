@@ -1,24 +1,14 @@
 package com.tms.repositories;
 
 import com.tms.model.User;
-import com.tms.model.dto.UserDTO;
-import com.tms.model.dto.UserUpdateRequestDTO;
-import com.tms.util.SqlQueries;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.List;
 
 @Slf4j
@@ -26,71 +16,76 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserRepository {
 
-    private final EntityManagerFactory entityManagerFactory;
-    private final JdbcTemplate jdbcTemplate;
+    private final SessionFactory sessionFactory;
 
     public User saveUser(User userInput) {
         User user = null;
-        EntityTransaction entityTransaction = null;
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
-            entityTransaction = entityManager.getTransaction();
-            entityTransaction.begin();
-            entityManager.persist(userInput);
-            user = entityManager.find(User.class, userInput.getId());
-            entityTransaction.commit();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            session.persist(userInput);
+            user = session.find(User.class, userInput.getId());
+            transaction.commit();
         } catch (Exception e) {
             log.error("Error saving user", e);
-            if (entityTransaction != null && entityTransaction.isActive()) {
-                entityTransaction.rollback();
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
             }
         }
         return user;
     }
 
-    public List<UserDTO> findAll() {
-        return jdbcTemplate.query(SqlQueries.SQL_SELECT_ALL_USERS, new BeanPropertyRowMapper<>(UserDTO.class));
+    //HQL
+    public List<User> findAll() {
+        try (Session session = sessionFactory.openSession()) {
+            Query<User> query = session.createQuery("FROM User", User.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            log.error("Error finding users", e);
+        }
+        return List.of();
     }
 
     public User getUserById(Integer id) {
         User user = null;
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
-            user = entityManager.find(User.class, id);
+        try (Session session = sessionFactory.openSession()) {
+            user = session.find(User.class, id);
         } catch (Exception e) {
             log.error("Error while getting user", e);
         }
         return user;
     }
 
-    public boolean updateUser(UserUpdateRequestDTO userInput) {
-        return jdbcTemplate.update(SqlQueries.SQL_UPDATE_USER_BY_ID,
-                userInput.getFirstName(),
-                userInput.getLastName(),
-                userInput.getAge(),
-                userInput.getEmail(),
-                userInput.getId()) > 0;
+    public User updateUser(User userInput) {
+        Transaction transaction = null;
+        User userUpdated = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            userUpdated = session.merge(userInput);
+            transaction.commit();
+        } catch (Exception e) {
+            log.error("Error while updating user", e);
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+        }
+        return userUpdated;
     }
 
-    public boolean deleteUserById(Integer id) {
-        return jdbcTemplate.update(SqlQueries.SQL_DELETE_USER_BY_ID, id) > 0;
+    public void deleteUserById(Integer id) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            session.remove(session.find(User.class, id));
+            transaction.commit();
+        } catch (Exception e) {
+            log.error("Error while deleting user", e);
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+        }
     }
 }
-
-//TODO: рассказать EntityManager cache
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,7 +1,6 @@
 package com.tms.config;
 
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class DatabaseConfig {
 
     @Bean
-    public EntityManagerFactory entityManagerFactory() {
-        return Persistence.createEntityManagerFactory("database39-unit");
+    public SessionFactory getSessionFactory() {
+        return new org.hibernate.cfg.Configuration().configure().buildSessionFactory();
     }
 }

@@ -1,14 +1,14 @@
 package com.tms.controllers;
 
+import com.tms.exceptions.UserNotFoundException;
 import com.tms.exceptions.UserUpdateException;
+import com.tms.model.User;
 import com.tms.model.dto.UserCreateRequestDTO;
-import com.tms.model.dto.UserDTO;
 import com.tms.model.dto.UserUpdateRequestDTO;
 import com.tms.services.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public ResponseEntity<List<User>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
@@ -47,33 +47,29 @@ public class UserController {
             @ApiResponse(description = "Общая ошибка запроса", responseCode = "400")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable @Parameter(description = "Уникальный идентификатор пользователя", example = "67") Integer id) {
-        UserDTO userDto = userService.getUserById(id);
-        if (userDto == null) {
+    public ResponseEntity<User> getUserById(@PathVariable @Parameter(description = "Уникальный идентификатор пользователя", example = "67") Integer id) {
+        User user = userService.getUserById(id);
+        if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(userDto, HttpStatus.OK);
-    }
-
-    @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserCreateRequestDTO userRequest) {
-        UserDTO createdUserDTO = userService.createUser(userRequest);
-        return new ResponseEntity<>(createdUserDTO, HttpStatus.CREATED);
-    }
-
-    @PutMapping
-    public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateRequestDTO userRequest) throws UserUpdateException {
-        UserDTO user = userService.updateUser(userRequest);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @Tag(name = "Remove endpoints")
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserCreateRequestDTO userRequest) {
+        User createdUser = userService.createUser(userRequest);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    @PutMapping
+    public ResponseEntity<User> updateUser(@RequestBody @Valid UserUpdateRequestDTO userRequest) throws UserUpdateException, UserNotFoundException {
+        User user = userService.updateUser(userRequest);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteUserById(@PathVariable Integer id) {
-        boolean result = userService.deleteUserById(id);
-        if (result) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<HttpStatus> deleteUserById(@PathVariable Integer id) throws UserNotFoundException {
+        userService.deleteUserById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

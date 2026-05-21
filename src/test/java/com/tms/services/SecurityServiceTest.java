@@ -1,10 +1,10 @@
 package com.tms.services;
 
 import com.tms.exceptions.AgeException;
+import com.tms.exceptions.RegistrationException;
 import com.tms.model.Security;
 import com.tms.model.User;
 import com.tms.model.dto.RegistrationRequestDTO;
-import com.tms.model.dto.UserDTO;
 import com.tms.repositories.SecurityRepository;
 import com.tms.repositories.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -52,7 +52,7 @@ public class SecurityServiceTest {
 
     @DisplayName("Регистрация - успешный сценарий")
     @Test
-    public void registration_Success() {
+    public void registration_Success() throws RegistrationException {
         RegistrationRequestDTO registrationRequestDTO = new RegistrationRequestDTO();
         registrationRequestDTO.setFirstName("John");
         registrationRequestDTO.setLastName("Doe");
@@ -71,7 +71,7 @@ public class SecurityServiceTest {
         when(userRepository.saveUser(any(User.class))).thenReturn(userSaved);
         doNothing().when(securityRepository).saveSecurity(any(Security.class));
 
-        UserDTO registrationResult = securityService.registration(registrationRequestDTO);
+        User registrationResult = securityService.registration(registrationRequestDTO);
 
         Assertions.assertNotNull(registrationResult);
         Assertions.assertEquals(registrationRequestDTO.getFirstName(), registrationResult.getFirstName());
