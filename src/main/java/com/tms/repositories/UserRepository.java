@@ -1,6 +1,11 @@
 package com.tms.repositories;
 
 import com.tms.model.User;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
@@ -10,12 +15,11 @@ import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * HQL = Hibernate Query Language
+ * Criteria
  */
 
 @Slf4j
@@ -46,10 +50,13 @@ public class UserRepository {
         return user;
     }
 
-    //HQL
     public List<User> findAll() {
         try (Session session = sessionFactory.openSession()) {
-            Query<User> query = session.createQuery("FROM User", User.class);
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<User> cq = cb.createQuery(User.class);
+            Root<User> root = cq.from(User.class);
+            cq.select(root);
+            Query<User> query = session.createQuery(cq);
             return query.getResultList();
         } catch (Exception e) {
             log.error("Error finding users", e);
@@ -60,9 +67,19 @@ public class UserRepository {
     public User getUserById(Integer id) {
         User user = null;
         try (Session session = sessionFactory.openSession()) {
-            Query<User> userQuery = session.createQuery("FROM User WHERE id = :id", User.class);
-            userQuery.setParameter("id", id);
-            user = userQuery.getSingleResult();
+            //Создаем Criteria Builder
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+
+            //Создание CriteriaQuery
+            CriteriaQuery<User> cq = cb.createQuery(User.class);
+
+            //Указываем корень запроса
+            Root<User> root = cq.from(User.class);
+
+            //Добавление условий
+            cq.where(cb.equal(root.get("id"), id));
+            Query<User> query = session.createQuery(cq);
+            return query.getSingleResult();
         } catch (Exception e) {
             log.error("Error while getting user", e);
         }
@@ -74,19 +91,26 @@ public class UserRepository {
         User userUpdated = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
-            MutationQuery mutationQuery = session.createMutationQuery("update User set firstName = :firstName, lastName = :lastName, age=:age, email=:email, updated=:updated where id = :id");
-            mutationQuery.setParameter("firstName", userInput.getFirstName());
-            mutationQuery.setParameter("lastName", userInput.getLastName());
-            mutationQuery.setParameter("age", userInput.getAge());
-            mutationQuery.setParameter("email", userInput.getEmail());
-            mutationQuery.setParameter("updated", LocalDateTime.now());
-            mutationQuery.setParameter("id", userInput.getId());
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaUpdate<User> cq = cb.createCriteriaUpdate(User.class);
+            Root<User> rootUpdate = cq.from(User.class);
+            cq.set(rootUpdate.get("firstName"), userInput.getFirstName());
+            cq.set(rootUpdate.get("lastName"), userInput.getLastName());
+            cq.set(rootUpdate.get("age"), userInput.getAge());
+            cq.set(rootUpdate.get("email"), userInput.getEmail());
+            cq.set(rootUpdate.get("updated"), LocalDateTime.now());
+            cq.set(rootUpdate.get("id"), userInput.getId());
+            cq.where(cb.equal(rootUpdate.get("id"), userInput.getId()));
             transaction.begin();
-            mutationQuery.executeUpdate();
+
+            session.createMutationQuery(cq).executeUpdate();
             transaction.commit();
-            Query<User> userQuery = session.createQuery("FROM User WHERE id = :id", User.class);
-            userQuery.setParameter("id", userInput.getId());
-            userUpdated = userQuery.getSingleResult();
+
+            CriteriaQuery<User> criteriaQuery = cb.createQuery(User.class);
+            Root<User> rootQuery = criteriaQuery.from(User.class);
+            criteriaQuery.where(cb.equal(rootQuery.get("id"), userInput.getId()));
+            Query<User> query = session.createQuery(criteriaQuery);
+            userUpdated = query.getSingleResult();
         } catch (Exception e) {
             log.error("Error while updating user", e);
             if (transaction != null && transaction.isActive()) {
@@ -101,9 +125,12 @@ public class UserRepository {
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            MutationQuery userQuery = session.createMutationQuery("DELETE FROM User WHERE id = :id");
-            userQuery.setParameter("id", id);
-            userQuery.executeUpdate();
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaDelete<User> cq = cb.createCriteriaDelete(User.class);
+            Root<User> root = cq.from(User.class);
+            cq.where(cb.equal(root.get("id"), id));
+            MutationQuery mutationQuery = session.createMutationQuery(cq);
+            mutationQuery.executeUpdate();
             transaction.commit();
         } catch (Exception e) {
             log.error("Error while deleting user", e);
