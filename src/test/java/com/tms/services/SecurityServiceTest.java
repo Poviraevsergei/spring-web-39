@@ -68,8 +68,8 @@ public class SecurityServiceTest {
         userSaved.setAge(registrationRequestDTO.getAge());
         userSaved.setEmail(registrationRequestDTO.getEmail());
 
-        when(userRepository.saveUser(any(User.class))).thenReturn(userSaved);
-        doNothing().when(securityRepository).saveSecurity(any(Security.class));
+        when(userRepository.save(any(User.class))).thenReturn(userSaved);
+        doNothing().when(securityRepository).save(any(Security.class));
 
         User registrationResult = securityService.registration(registrationRequestDTO);
 
@@ -84,8 +84,8 @@ public class SecurityServiceTest {
         Assertions.assertDoesNotThrow(() -> {
             securityService.registration(registrationRequestDTO);
         });
-        verify(userRepository, times(3)).saveUser(any(User.class));
-        verify(securityRepository, times(3)).saveSecurity(any(Security.class));
+        verify(userRepository, times(3)).save(any(User.class));
+        verify(securityRepository, times(3)).save(any(Security.class));
     }
 
     @DisplayName("Регистрация - возраст меньше 18")
@@ -97,7 +97,7 @@ public class SecurityServiceTest {
         Assertions.assertThrows(AgeException.class, () -> {
             securityService.registration(registrationRequestDTO);
         });
-        verify(userRepository, times(0)).saveUser(any(User.class));
-        verify(securityRepository, times(0)).saveSecurity(any(Security.class));
+        verify(userRepository, times(0)).save(any(User.class));
+        verify(securityRepository, times(0)).save(any(Security.class));
     }
 }

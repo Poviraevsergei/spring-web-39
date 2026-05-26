@@ -34,6 +34,7 @@ public class UserMapper {
         user.setLastName(userDTO.getLastName());
         user.setAge(userDTO.getAge());
         user.setEmail(userDTO.getEmail());
+        user.setCreated(LocalDateTime.now());
         user.setUpdated(LocalDateTime.now());
         return user;
     }

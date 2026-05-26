@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RegistrationException.class)
-    public ResponseEntity<HttpStatus> registrationExceptionexceptionHandler(RegistrationException ex) {
+    public ResponseEntity<HttpStatus> registrationExceptionExceptionHandler(RegistrationException ex) {
         log.error("Registration exception: " + ex.getMessage());
         return new ResponseEntity<>(HttpStatus.CONFLICT);
     }

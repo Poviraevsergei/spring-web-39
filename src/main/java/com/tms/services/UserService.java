@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -24,45 +25,42 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User getUserById(Integer id) {
+    public Optional<User> getUserById(Integer id) {
         log.debug("IN UserService:getUserById");
-        User userFromDatabase = userRepository.getUserById(id);
+        Optional<User> userFromDatabase = userRepository.findById(id);
         log.debug("OUT UserService:getUserById");
         return userFromDatabase;
     }
 
     public User createUser(UserCreateRequestDTO userDto) {
         log.debug("IN UserService:createUser");
-        User savedUser = userRepository.saveUser(userMapper.mapFromUserCreateRequestDTOToUser(userDto));
+        User savedUser = userRepository.save(userMapper.mapFromUserCreateRequestDTOToUser(userDto));
         log.debug("OUT UserService:createUser");
         return savedUser;
     }
 
     public User updateUser(UserUpdateRequestDTO userDto) throws UserUpdateException, UserNotFoundException {
         log.debug("IN UserService:updateUser");
-        User userFromDatabase = userRepository.getUserById(userDto.getId());
-        if (userFromDatabase == null) {
+        Optional<User> userFromDatabase = userRepository.findById(userDto.getId());
+        if (userFromDatabase.isEmpty()) {
             throw new UserNotFoundException();
         }
 
-        User result = userRepository.updateUser(userMapper.mapFromUserUpdateRequestDTOToUser(userDto));
-        if (result != null) {
-            log.info("User with id: {} updated", userDto.getId());
-            log.debug("OUT UserService:updateUser");
-            return result;
-        }
-        throw new UserUpdateException("User update failed for userId=" + userDto.getId());
+        User result = userRepository.save(userMapper.mapFromUserUpdateRequestDTOToUser(userDto));
+        log.info("User with id: {} updated", userDto.getId());
+        log.debug("OUT UserService:updateUser");
+        return result;
     }
 
 
     public void deleteUserById(Integer id) throws UserNotFoundException {
         log.debug("IN UserService:deleteUserById");
 
-        User userFromDatabase = userRepository.getUserById(id);
-        if (userFromDatabase == null) {
+        Optional<User> userFromDatabase = userRepository.findById(id);
+        if (userFromDatabase.isEmpty()) {
             throw new UserNotFoundException();
         }
-        userRepository.deleteUserById(id);
+        userRepository.deleteById(id);
         log.info("Delete user with id: {}", id);
         log.debug("OUT UserService:deleteUserById");
     }

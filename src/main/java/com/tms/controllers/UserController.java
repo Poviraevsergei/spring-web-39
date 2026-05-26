@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -48,11 +49,11 @@ public class UserController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable @Parameter(description = "Уникальный идентификатор пользователя", example = "67") Integer id) {
-        User user = userService.getUserById(id);
-        if (user == null) {
+        Optional<User> user = userService.getUserById(id);
+        if (user.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
 
     @PostMapping

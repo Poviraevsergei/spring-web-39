@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/security")
 public class SecurityController {
@@ -37,10 +39,10 @@ public class SecurityController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Security> getSecurityById(@PathVariable Integer id) {
-        Security security = securityService.getSecurityById(id);
-        if (security == null) {
+        Optional<Security> security = securityService.getSecurityById(id);
+        if (security.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(security, HttpStatus.OK);
+        return new ResponseEntity<>(security.get(), HttpStatus.OK);
     }
 }

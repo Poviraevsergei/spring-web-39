@@ -12,9 +12,13 @@ import com.tms.util.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -22,36 +26,34 @@ import org.springframework.stereotype.Service;
 public class SecurityService {
     private final SecurityRepository securityRepository;
     private final UserRepository userRepository;
-    private final SessionFactory sessionFactory;
 
     private final UserMapper userMapper;
     private final SecurityMapper securityMapper;
 
-    public Security getSecurityById(Integer id) {
+    public Optional<Security> getSecurityById(Integer id) {
         log.debug("IN SecurityService:getSecurityById");
-        Security securityFromDatabase = securityRepository.getSecurityById(id);
+        Optional<Security> securityFromDatabase = securityRepository.findById(id);
         log.info("Result securityFromDatabase: {}", securityFromDatabase);
         log.debug("OUT SecurityService:getUserById");
         return securityFromDatabase;
     }
 
+    @Transactional(rollbackFor = Exception.class,
+            timeout = 30,
+            isolation = Isolation.READ_UNCOMMITTED,
+            propagation = Propagation.REQUIRED)
     public User registration(RegistrationRequestDTO registrationDto) throws RegistrationException {
         log.debug("IN SecurityService:registration");
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
-            User user = userMapper.mapFromRegistrationRequestDTOToUser(registrationDto);
-            user = userRepository.saveUser(user);
-            log.info("User saved: {}", user);
-            Security security = securityMapper.mapFromRegistrationRequestDTOToSecurity(registrationDto, user);
-            securityRepository.saveSecurity(security);
-            transaction.commit();
-            log.info("User security added for user with id: {}", user.getId());
-            return user;
-        } catch (Exception e) {
-            log.error("Exception in registration", e);
+        if (securityRepository.existsByUsername(registrationDto.getUsername()) ||
+                userRepository.existsByEmail(registrationDto.getEmail())) {
+            throw new RegistrationException("Username/Email already exists");
         }
-        throw new RegistrationException();
+        User user = userMapper.mapFromRegistrationRequestDTOToUser(registrationDto);
+        user = userRepository.save(user);
+        log.info("User saved: {}", user);
+        Security security = securityMapper.mapFromRegistrationRequestDTOToSecurity(registrationDto, user);
+        securityRepository.save(security);
+        log.info("User security added for user with id: {}", user.getId());
+        return user;
     }
 }
