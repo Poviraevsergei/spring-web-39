@@ -27,6 +27,6 @@ public class RegistrationRequestDTO {
     @Email
     private String email;
 
-    @Pattern(regexp = "[A-z]{6,}")
+    @Pattern(regexp = "[A-z0-9]{3,}")
     private String password;
 }

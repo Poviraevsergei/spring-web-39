@@ -3,6 +3,8 @@ package com.tms.controllers;
 import com.tms.exceptions.RegistrationException;
 import com.tms.model.Security;
 import com.tms.model.User;
+import com.tms.model.dto.AuthRequestDTO;
+import com.tms.model.dto.AuthResponseDTO;
 import com.tms.model.dto.RegistrationRequestDTO;
 import com.tms.services.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,5 +46,14 @@ public class SecurityController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(security.get(), HttpStatus.OK);
+    }
+
+    @PostMapping("/generate")
+    public ResponseEntity<AuthResponseDTO> generateJWT(@Valid @RequestBody AuthRequestDTO authRequestDTO) {
+        Optional<AuthResponseDTO> jwt = securityService.generateJWT(authRequestDTO);
+        if (jwt.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(jwt.get(), HttpStatus.CREATED);
     }
 }

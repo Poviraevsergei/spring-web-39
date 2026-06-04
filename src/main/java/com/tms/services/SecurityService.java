@@ -3,6 +3,8 @@ package com.tms.services;
 import com.tms.exceptions.RegistrationException;
 import com.tms.model.Security;
 import com.tms.model.User;
+import com.tms.model.dto.AuthRequestDTO;
+import com.tms.model.dto.AuthResponseDTO;
 import com.tms.model.dto.RegistrationRequestDTO;
 import com.tms.repositories.SecurityRepository;
 import com.tms.repositories.UserRepository;
@@ -13,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,6 +33,7 @@ public class SecurityService {
 
     private final UserMapper userMapper;
     private final SecurityMapper securityMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public Optional<Security> getSecurityById(Integer id) {
         log.debug("IN SecurityService:getSecurityById");
@@ -36,6 +41,22 @@ public class SecurityService {
         log.info("Result securityFromDatabase: {}", securityFromDatabase);
         log.debug("OUT SecurityService:getUserById");
         return securityFromDatabase;
+    }
+
+    public Optional<AuthResponseDTO> generateJWT(AuthRequestDTO authRequestDTO) {
+        //1.Аутентификация
+        log.debug("IN SecurityService:generateJWT");
+        Optional<Security> securityOptional = securityRepository.findByUsername(authRequestDTO.getUsername());
+        if (securityOptional.isEmpty()) {
+            throw new UsernameNotFoundException("Username not found: " + authRequestDTO.getUsername());
+        }
+        Security security = securityOptional.get();
+        if (!passwordEncoder.matches(authRequestDTO.getPassword(), security.getPassword())){
+            return Optional.empty();
+        }
+
+        //2.Генерация JWT
+        log.debug("OUT SecurityService:generateJWT");
     }
 
     @Transactional(rollbackFor = Exception.class,
@@ -52,6 +73,7 @@ public class SecurityService {
         user = userRepository.save(user);
         log.info("User saved: {}", user);
         Security security = securityMapper.mapFromRegistrationRequestDTOToSecurity(registrationDto, user);
+        security.setPassword(passwordEncoder.encode(security.getPassword()));
         securityRepository.save(security);
         log.info("User security added for user with id: {}", user.getId());
         return user;

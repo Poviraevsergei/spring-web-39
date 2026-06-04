@@ -3,6 +3,7 @@ package com.tms.exceptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -56,8 +57,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RegistrationException.class)
-    public ResponseEntity<HttpStatus> registrationExceptionExceptionHandler(RegistrationException ex) {
+    public ResponseEntity<HttpStatus> registrationExceptionHandler(RegistrationException ex) {
         log.error("Registration exception: " + ex.getMessage());
         return new ResponseEntity<>(HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<HttpStatus> usernameNotFoundExceptionHandler(UsernameNotFoundException ex) {
+        log.error("UsernameNotFoundException: " + ex.getMessage());
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

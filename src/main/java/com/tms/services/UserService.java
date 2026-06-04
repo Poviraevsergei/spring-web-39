@@ -9,6 +9,7 @@ import com.tms.repositories.UserRepository;
 import com.tms.util.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +31,15 @@ public class UserService {
         Optional<User> userFromDatabase = userRepository.findById(id);
         log.debug("OUT UserService:getUserById");
         return userFromDatabase;
+    }
+
+    // Как подтянуть пользователя из SecurityContext контекста
+    public Optional<User> getInfoAboutMyself() {
+        log.debug("IN UserService:getInfoAboutMyself");
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> user = userRepository.findByUsername(username);
+        log.debug("OUT UserService:getInfoAboutMyself");
+        return user;
     }
 
     public User createUser(UserCreateRequestDTO userDto) {
