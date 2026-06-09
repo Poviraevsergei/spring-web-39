@@ -13,8 +13,6 @@ import com.tms.util.UserMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,7 +28,7 @@ import java.util.Optional;
 public class SecurityService {
     private final SecurityRepository securityRepository;
     private final UserRepository userRepository;
-
+    private final JwtService jwtService;
     private final UserMapper userMapper;
     private final SecurityMapper securityMapper;
     private final PasswordEncoder passwordEncoder;
@@ -44,19 +42,21 @@ public class SecurityService {
     }
 
     public Optional<AuthResponseDTO> generateJWT(AuthRequestDTO authRequestDTO) {
-        //1.Аутентификация
         log.debug("IN SecurityService:generateJWT");
         Optional<Security> securityOptional = securityRepository.findByUsername(authRequestDTO.getUsername());
         if (securityOptional.isEmpty()) {
             throw new UsernameNotFoundException("Username not found: " + authRequestDTO.getUsername());
         }
         Security security = securityOptional.get();
-        if (!passwordEncoder.matches(authRequestDTO.getPassword(), security.getPassword())){
+        if (!passwordEncoder.matches(authRequestDTO.getPassword(), security.getPassword())) {
             return Optional.empty();
         }
-
-        //2.Генерация JWT
+        String jwt = jwtService.generateJwt(security.getUsername());
+        if (jwt == null) {
+            return Optional.empty();
+        }
         log.debug("OUT SecurityService:generateJWT");
+        return Optional.of(new AuthResponseDTO(jwt));
     }
 
     @Transactional(rollbackFor = Exception.class,

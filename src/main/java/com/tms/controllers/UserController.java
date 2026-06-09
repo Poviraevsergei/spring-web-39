@@ -9,6 +9,8 @@ import com.tms.services.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/users")
 public class UserController {

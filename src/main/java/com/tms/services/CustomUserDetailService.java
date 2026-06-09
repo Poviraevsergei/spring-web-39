@@ -1,4 +1,4 @@
-package com.tms.controllers;
+package com.tms.services;
 
 import com.tms.model.Security;
 import com.tms.repositories.SecurityRepository;

@@ -1,17 +1,18 @@
 package com.tms.services;
 
-import ch.qos.logback.core.util.TimeUtil;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import io.micrometer.core.instrument.util.TimeUtils;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -24,11 +25,13 @@ public class JwtService {
     @Value(value = "${jwt.secret}")
     private String secret;
 
+    private final String AUTH_HEADER = "Authorization";
+
     //Метод генерации JWT
     public String generateJwt(String username){
         log.debug("IN JwtService:generateJwt");
         String jwt = Jwts.builder()
-                .setSubject(username)
+                .subject(username)
                 .expiration(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(expiration)))
                 .signWith(getSighKey())
                 .compact();
@@ -36,11 +39,45 @@ public class JwtService {
         return jwt;
     }
 
+    //Метод создания Key(хранит secret+alg)
     private Key getSighKey(){
         log.debug("IN JwtService:getSighKey");
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         Key resultKey = Keys.hmacShaKeyFor(keyBytes);
         log.debug("OUT JwtService:getSighKey");
         return resultKey;
+    }
+
+    //Метод из ServletRequest достает JWT
+    public Optional<String> getTokenFromServletRequest(ServletRequest servletRequest){
+        log.debug("IN JwtService:getTokenFromServletRequest");
+        try {
+            HttpServletRequest request = (HttpServletRequest) servletRequest;
+            String bearerToken = request.getHeader(AUTH_HEADER);   // Bearer asdasd.asdasd.asdasd
+            if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+                return Optional.of(bearerToken.substring(7));
+            }
+            return Optional.empty();
+        } finally {
+            log.debug("OUT JwtService:getTokenFromServletRequest");
+        }
+    }
+
+    //Метод достает Username из JWT
+    public Optional<String> getUsernameFromJwt(String jwt) {
+        log.debug("IN JwtService:getUsernameFromJwt");
+        try {
+            return Optional.of(Jwts.parser()
+                    .verifyWith((SecretKey) getSighKey())
+                    .build()
+                    .parseSignedClaims(jwt)
+                    .getPayload()
+                    .getSubject());
+        } catch (Exception e) {
+            log.info("Can't take login from jwt: " + e);
+        } finally {
+            log.debug("OUT JwtService:getUsernameFromJwt");
+        }
+        return Optional.empty();
     }
 }
