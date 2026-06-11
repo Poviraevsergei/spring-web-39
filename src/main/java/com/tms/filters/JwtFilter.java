@@ -25,9 +25,8 @@ public class JwtFilter implements Filter {
     private final JwtService jwtService;
     private final CustomUserDetailService customUserDetailService;
 
-    @SneakyThrows
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
         log.debug("IN JwtFilter: doFilter");
         Optional<String> jwt = jwtService.getTokenFromServletRequest(servletRequest);
         if (jwt.isPresent()) {

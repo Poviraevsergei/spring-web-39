@@ -22,8 +22,8 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/{productId}/{userId}")
-    public ResponseEntity<HttpStatus> addProduct(@PathVariable Integer productId, @PathVariable Integer userId){
-        if (productService.addProduct(productId, userId)){
+    public ResponseEntity<HttpStatus> addProduct(@PathVariable Integer productId, @PathVariable Integer userId) {
+        if (productService.addProduct(productId, userId)) {
             return new ResponseEntity<>(HttpStatus.CREATED);
         }
         return new ResponseEntity<>(HttpStatus.CONFLICT);

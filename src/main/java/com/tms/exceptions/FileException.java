@@ -1,4 +1,4 @@
 package com.tms.exceptions;
 
-public class FileException extends Exception{
+public class FileException extends Exception {
 }

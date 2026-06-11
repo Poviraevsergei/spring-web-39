@@ -3,6 +3,7 @@ package com.tms.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,13 +22,13 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "security")
 @Data
-@ToString(exclude = {"user"})
-@EqualsAndHashCode(exclude = {"user"})
 public class Security {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String username;
+    @Column(unique = true, name = "user_id")
+    private Integer userId;
 
     @JsonIgnore
     private String password;
@@ -36,9 +37,4 @@ public class Security {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @JsonBackReference
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 }

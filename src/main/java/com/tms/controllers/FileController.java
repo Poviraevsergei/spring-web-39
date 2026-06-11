@@ -48,14 +48,12 @@ public class FileController {
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 
-    @Hidden
     @GetMapping
     public ResponseEntity<List<String>> getListOfFilenames() throws IOException {
         List<String> filenames = fileService.getListOfFilenames();
         return new ResponseEntity<>(filenames, HttpStatus.OK);
     }
 
-    @Tag(name = "Remove endpoints", description = "Эндпоинты ответственные за удаление")
     @DeleteMapping("/{filename}")
     public ResponseEntity<HttpStatus> deleteFile(@PathVariable("filename") String filename) throws FileNotFoundException {
         if (fileService.deleteFileByFilename(filename)){

@@ -1,24 +1,17 @@
 package com.tms.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @NamedQueries( value = {
         @NamedQuery(name = "getAllUserQuery", query = "FROM User"),
@@ -26,8 +19,6 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @Data
-@ToString(exclude = {"security", "products"})
-@EqualsAndHashCode(exclude = {"security", "products"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,10 +34,4 @@ public class User {
     @Column(updatable = false)
     private LocalDateTime created;
     private LocalDateTime updated;
-
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
-    private Security security;
-
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
-    private List<Product> products;
 }

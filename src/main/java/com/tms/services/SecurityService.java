@@ -76,6 +76,7 @@ public class SecurityService {
         security.setPassword(passwordEncoder.encode(security.getPassword()));
         securityRepository.save(security);
         log.info("User security added for user with id: {}", user.getId());
+        log.debug("OUT SecurityService:registration");
         return user;
     }
 }

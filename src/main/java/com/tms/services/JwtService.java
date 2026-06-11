@@ -27,7 +27,6 @@ public class JwtService {
 
     private final String AUTH_HEADER = "Authorization";
 
-    //Метод генерации JWT
     public String generateJwt(String username){
         log.debug("IN JwtService:generateJwt");
         String jwt = Jwts.builder()
@@ -39,7 +38,6 @@ public class JwtService {
         return jwt;
     }
 
-    //Метод создания Key(хранит secret+alg)
     private Key getSighKey(){
         log.debug("IN JwtService:getSighKey");
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
@@ -48,12 +46,11 @@ public class JwtService {
         return resultKey;
     }
 
-    //Метод из ServletRequest достает JWT
     public Optional<String> getTokenFromServletRequest(ServletRequest servletRequest){
         log.debug("IN JwtService:getTokenFromServletRequest");
         try {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
-            String bearerToken = request.getHeader(AUTH_HEADER);   // Bearer asdasd.asdasd.asdasd
+            String bearerToken = request.getHeader(AUTH_HEADER);
             if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
                 return Optional.of(bearerToken.substring(7));
             }
@@ -63,7 +60,6 @@ public class JwtService {
         }
     }
 
-    //Метод достает Username из JWT
     public Optional<String> getUsernameFromJwt(String jwt) {
         log.debug("IN JwtService:getUsernameFromJwt");
         try {
@@ -74,7 +70,7 @@ public class JwtService {
                     .getPayload()
                     .getSubject());
         } catch (Exception e) {
-            log.info("Can't take login from jwt: " + e);
+            log.info("Can't take login from jwt: {}", e.getMessage());
         } finally {
             log.debug("OUT JwtService:getUsernameFromJwt");
         }

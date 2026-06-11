@@ -18,7 +18,6 @@ public class SecurityMapper {
         security.setUsername(userDTO.getUsername());
         security.setPassword(userDTO.getPassword());
         security.setRole(Role.USER);
-        security.setUser(user);
         security.setCreated(LocalDateTime.now());
         security.setUpdated(LocalDateTime.now());
         return security;

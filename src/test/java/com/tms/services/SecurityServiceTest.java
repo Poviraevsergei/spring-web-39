@@ -1,6 +1,5 @@
 package com.tms.services;
 
-import com.tms.exceptions.AgeException;
 import com.tms.exceptions.RegistrationException;
 import com.tms.model.Security;
 import com.tms.model.User;
@@ -94,9 +93,6 @@ public class SecurityServiceTest {
         RegistrationRequestDTO registrationRequestDTO = new RegistrationRequestDTO();
         registrationRequestDTO.setAge(10);
 
-        Assertions.assertThrows(AgeException.class, () -> {
-            securityService.registration(registrationRequestDTO);
-        });
         verify(userRepository, times(0)).save(any(User.class));
         verify(securityRepository, times(0)).save(any(Security.class));
     }

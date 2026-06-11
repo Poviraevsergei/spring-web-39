@@ -33,7 +33,6 @@ public class UserService {
         return userFromDatabase;
     }
 
-    // Как подтянуть пользователя из SecurityContext контекста
     public Optional<User> getInfoAboutMyself() {
         log.debug("IN UserService:getInfoAboutMyself");
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -61,7 +60,6 @@ public class UserService {
         log.debug("OUT UserService:updateUser");
         return result;
     }
-
 
     public void deleteUserById(Integer id) throws UserNotFoundException {
         log.debug("IN UserService:deleteUserById");
