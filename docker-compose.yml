@@ -1,0 +1,47 @@
+name: app-spring-docker-compose
+
+services:
+  pg_db:
+    container_name: pg_db
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=user39
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=database39
+    networks:
+      - backend_network
+
+  app:
+    container_name: app
+    image: poviraevsergei/web_app_39_image:1.0.1
+    ports:
+      - 8081:8081
+    environment:
+      - PG_HOST=pg_db
+      - DATABASE_NAME=database39
+      - DATABASE_USERNAME=user39
+      - DATABASE_PASSWORD=root
+      - JWT_SECRET=JrXPWEEsOMVI2DFsHhpGlxJMTs8LivJqd93d83EH1Fb
+    networks:
+      - backend_network
+    depends_on:
+      - pg_db
+
+networks:
+  backend_network:
+    driver: bridge
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
