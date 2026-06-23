@@ -30,18 +30,3 @@ services:
 networks:
   backend_network:
     driver: bridge
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
